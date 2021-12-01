@@ -73,7 +73,7 @@ module Pipedrive
       options = { "include_#{class_name_lower_case}_data": 1 }
       # add namespace to class_name
       class_name = "::Pipedrive::#{class_name}" unless class_name.include?("Pipedrive")
-      define_method(resource_name) do |params = {}|
+      send(:define_method, resource_name) do |params = {}|
         response = request(:get,
                            "#{resource_url}/#{resource_name}",
                            params.merge(options))
@@ -126,14 +126,14 @@ module Pipedrive
           # and returns the corresponding Method object. Because the API may
           # also use `method` as a field name, we check the arity of *args
           # to decide whether to act as a getter or call the parent method.
-          klass.define_method(m) do |*args|
+          klass.send(:define_method, m) do |*args|
             args.empty? ? fetch_value(m, is_custom_field) : super(*args)
           end
         else
-          klass.define_method(m) { fetch_value(m, is_custom_field) }
+          klass.send(:define_method, m) { fetch_value(m, is_custom_field) }
         end
 
-        klass.define_method(:"#{m}=") do |value|
+        klass.send(:define_method, :"#{m}=") do |value|
           @data[m] = @unsaved_data[m] = value
         end
 
@@ -141,7 +141,7 @@ module Pipedrive
           fetch_value(m, is_custom_field).class
         )
 
-        klass.define_method(:"#{m}?") do
+        klass.send(:define_method, :"#{m}?") do
           fetch_value(m, is_custom_field)
         end
       end
